@@ -1,0 +1,185 @@
+"""Config flow for Snapi Devices Reader integration."""
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+import voluptuous as vol
+
+from homeassistant import config_entries
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResult
+from homeassistant.exceptions import HomeAssistantError
+
+from .const import DOMAIN
+import requests
+from urllib.parse import urlencode
+
+_LOGGER = logging.getLogger(__name__)
+
+SNAPI_BASE_API = "https://api.snapi.com.au"
+
+STEP_USER_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required("username", default="Philippe"): str,
+        vol.Required("password", default="xxx"): str,
+    }
+)
+STEP_LIST_DEVICES_SCHEMA = vol.Schema(
+    {
+        vol.Required("devices_parent"): str,
+    }
+)
+
+
+class SnapiHub:
+    def __init__(self) -> None:
+        """Initialize."""
+
+    def authenticate(self, username: str, password: str) -> str:
+        """Test if we can authenticate with the host."""
+        base_url = SNAPI_BASE_API + "/gateway/oauth/oauth/token"
+        params = {"username": username, "password": password, "grant_type": "password"}
+
+        url = f"{base_url}?{urlencode(params)}"
+
+        response = requests.get(url, timeout=60)
+
+        if response.status_code == 200:
+            access_token = response.json().get("access_token")
+            print("Access token >> " + access_token)
+            return access_token
+        else:
+            print("Error:", response.status_code)
+            return None
+
+    def get_company_user_data(self, access_token: str) -> dict[str, Any]:
+        base_url = SNAPI_BASE_API + "/gateway/manage/company/companyUser"
+        params = {"access_token": access_token}
+
+        url = f"{base_url}?{urlencode(params)}"
+        response = requests.get(url, timeout=60)
+
+        if response.status_code == 200:
+            return response.json().get("data")
+        else:
+            print("Error:", response.status_code)
+            return None
+
+    def get_company_data(
+        self, access_token: str, company_user_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        base_url = SNAPI_BASE_API + "/gateway/manage/product/company"
+        params = {
+            "access_token": access_token,
+            "currentPage": 1,
+            "pageSize": 100,
+            "companyId": company_user_data["id"],
+        }
+
+        url = f"{base_url}?{urlencode(params)}"
+        response = requests.get(url, timeout=60)
+
+        if response.status_code == 200:
+            return response.json().get("data")
+        else:
+            print("Error:", response.status_code)
+            return None
+
+
+async def get_access_token(hass: HomeAssistant, data: dict[str, Any]) -> str:
+    """Validate the user input allows us to connect.
+
+    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
+    """
+
+    hub = SnapiHub()
+
+    access_token = await hass.async_add_executor_job(
+        hub.authenticate, data["username"], data["password"]
+    )
+    if access_token is None:
+        raise InvalidAuth
+
+    # If you cannot connect:
+    # throw CannotConnect
+    # If the authentication is wrong:
+    # InvalidAuth
+
+    # Return info that you want to store in the config entry.
+    return access_token
+
+
+async def get_company_user_data(hass: HomeAssistant, access_token) -> dict[str, Any]:
+    hub = SnapiHub()
+    return await hass.async_add_executor_job(hub.get_company_user_data, access_token)
+
+
+async def get_company_data(
+    hass: HomeAssistant, access_token: str, company_user_data: dict[str, Any]
+) -> dict[str, Any]:
+    hub = SnapiHub()
+    return await hass.async_add_executor_job(
+        hub.get_company_data, access_token, company_user_data
+    )
+
+
+class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Snapi Devices Reader."""
+
+    VERSION = 1
+
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle the initial step."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                access_token = await get_access_token(self.hass, user_input)
+                self.company_user_data = await get_company_user_data(
+                    self.hass, access_token
+                )
+                self.company_data = await get_company_data(
+                    self.hass, access_token, self.company_user_data
+                )
+                print(self.company_data)
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
+            except Exception:
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+                return await self.async_step_list_devices(access_token, user_input)
+                # return self.async_create_entry(title=info["title"], data=user_input)
+        return self.async_show_form(
+            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+        )
+
+    async def async_step_list_devices(
+        self, access_token: str = None, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Second step in config flow to add a repo to watch."""
+        errors: Dict[str, str] = {}
+        print("USER INPUT: " + str(user_input))
+        if "devices_parent" in user_input and user_input["devices_parent"] is not None:
+            return self.async_create_entry(
+                title=self.company_user_data["companyName"] + "xxx", data=user_input
+            )
+        return self.async_show_form(
+            step_id="list_devices", data_schema=STEP_LIST_DEVICES_SCHEMA, errors=errors
+        )
+
+        # return self.async_show_form(
+        #    step_id="repo", data_schema=REPO_SCHEMA, errors=errors
+        # )
+
+
+class CannotConnect(HomeAssistantError):
+    """Error to indicate we cannot connect."""
+
+
+class InvalidAuth(HomeAssistantError):
+    """Error to indicate there is invalid auth."""
