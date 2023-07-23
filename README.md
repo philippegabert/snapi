@@ -25,7 +25,7 @@ Retrieve your [SNAPI](https://snapi.com.au/) devices readings in Home Assistant.
     - Repository: https://github.com/philippegabert/snapi
     - Category: Integration
 <p align="center"><img src="https://github.com/philippegabert/snapi/blob/b0ce30731a90e44f53e23c7d2966daef44bed0dc/img/custom_repository.png?raw=true" width="350" alt="Custom repository"/></p>
-
+- Download the custom component
 
 ### Retrieve SNAPI devices details:
 - Login to https://scc.snapi.com.au/
