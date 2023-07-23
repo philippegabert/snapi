@@ -23,6 +23,9 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
+from homeassistant.helpers.entity import generate_entity_id
+
+
 from .const import DOMAIN, SNAPI_BASE_API
 from .exceptions import ApiAuthError, ApiError
 from .snapi_api import SnapiAPI
@@ -85,6 +88,7 @@ class SnapiCoordinator(DataUpdateCoordinator):
 
 
 class SnapiEntity(CoordinatorEntity, SensorEntity):
+
     def __init__(self, coordinator, idx) -> None:
         """Pass coordinator to CoordinatorEntity."""
         super().__init__(coordinator, context=idx)
@@ -92,10 +96,12 @@ class SnapiEntity(CoordinatorEntity, SensorEntity):
         self.idx = idx
         self._attr_name = self.coordinator.data[self.idx]["friendly_name"]
         meter_type = self.coordinator.data[self.idx]["type"]
-        self._attr_unique_id = "sensor.snapi_" + str(self.idx)
-        self._attr_entity_id = "sensor.snapi_" + str(self.idx)
+        self.entity_id = "snapi.snapi_" + str(self.idx)
+        #self.unique_id = "snapi.snapi_" + str(self.idx)
+        self._attr_unique_id = "snapi.snapi_" + str(self.idx)
+        
         _LOGGER.debug(
-            "Entity details: Name = {self._attr_name}, Unique ID = {self._attr_unique_id}, Type = {meter_type}"
+            "Entity details: Name = {self._attr_name}, Unique ID = {self.unique_id}, Type = {meter_type}"
         )
         if meter_type == "gas":
             self._attr_native_unit_of_measurement = UnitOfVolume.CUBIC_METERS
