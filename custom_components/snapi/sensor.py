@@ -54,6 +54,7 @@ async def async_setup_platform(
     )
     _LOGGER.info(f"{len(coordinator.data)} SNAPI entities added")
 
+    await coordinator.async_request_refresh()
     return True
 
 
@@ -70,7 +71,7 @@ class SnapiCoordinator(DataUpdateCoordinator):
             # Name of the data. For logging purposes.
             name="SNAPI",
             # Polling interval. Will only be polled if there are subscribers.
-            update_interval=timedelta(seconds=int(config["refresh_frequency"])),
+            update_interval=timedelta(minutes=int(config["refresh_frequency"])),
         )
         self.config = config
         _LOGGER.info(f"Update interval for SNAPI entities is {self.update_interval}.")

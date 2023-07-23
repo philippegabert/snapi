@@ -1,4 +1,5 @@
 {
     "name": "SNAPI integration",
-    "content_in_root": false
+    "content_in_root": false, 
+    "render_readme": true
   }
