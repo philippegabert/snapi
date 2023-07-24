@@ -80,3 +80,10 @@ The integration will create 2 entities per device:
 
 <p align="center"><img src="https://github.com/philippegabert/snapi/blob/main/img/entities.png?raw=true" height="250" alt="Entities"/></p>
 
+## Notes
+This is the *very* first version of this custom components. There are likely things that can be improved/cleansed and I am super keen on receiving feedback to get this better!
+
+In the future, provided there is enough interest, here are the things that I would like to do:
+- Installation/Config flows to be implemented (to have Graphical User Interface to install and configure the component)
+- Better integration with HACS 
+- Separate entity for the snapshot (and not simply a URL as an extra attribute). This entity would also automatically rotate the image received from the device.
