@@ -82,11 +82,15 @@ class SnapiAPI:
                     )
 
                     data_reading = data["data"]["list"][0]
+                    value_reading = 0
+                    if data_reading["data"]["number"] is not None:
+                        value_reading = float(data_reading["data"]["number"])
+
                     # Value reading
                     device_reading = {
                         "type": device["type"],
                         "friendly_name": device["friendly_name"],
-                        "value": float(data_reading["data"]["number"]),
+                        "value": value_reading,
                         "img_link": SNAPI_BASE_API + data_reading["path"],
                         "current_ts": datetime.now().strftime("%H:%M:%S"),
                     }
