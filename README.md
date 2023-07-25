@@ -26,7 +26,8 @@ Retrieve your [SNAPI](https://snapi.com.au/) devices readings in Home Assistant.
 - Download the custom component
 
 ### Retrieve SNAPI devices details:
-- Please contact the SNAPI team to get required configuration details. 
+Please contact the SNAPI team to get required configuration details. 
+
 What's needed:
 - API endpoint
 - "Reader ID" (*device_name in the configuration file*) 
