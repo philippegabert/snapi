@@ -16,8 +16,6 @@ Retrieve your [SNAPI](https://snapi.com.au/) devices readings in Home Assistant.
 *This integration is not affialiated (nor supported) by SNAPI.*
 
 
-
-
 ## Installation
 ### Add custom component:
 - [HACS](https://hacs.xyz/): HACS > Integration
@@ -28,20 +26,18 @@ Retrieve your [SNAPI](https://snapi.com.au/) devices readings in Home Assistant.
 - Download the custom component
 
 ### Retrieve SNAPI devices details:
-- Login to https://scc.snapi.com.au/
-- Select the device you want to monitor
-- Get the "Device name" (*device_name in the configuration file*) by selecting id "Reader ID":
-<p align="center"><img src="https://github.com/philippegabert/snapi/blob/b0ce30731a90e44f53e23c7d2966daef44bed0dc/img/readerid.png?raw=true" height="100" alt="Reader ID"/></p>
-
-- Get the "Product key" (*product_key in the configuration file*) from the page URL:
-<p align="center"><img src="https://github.com/philippegabert/snapi/blob/b0ce30731a90e44f53e23c7d2966daef44bed0dc/img/productkey.png?raw=true" alt="Product key"/></p>
-
+- Please contact the SNAPI team to get required configuration details. 
+What's needed:
+- API endpoint
+- "Reader ID" (*device_name in the configuration file*) 
+- "Product key" (*product_key in the configuration file*) 
 
 ### Configure Home Assistant:
 - In the `configuration.yaml` file:
 ```yaml
 sensor:
   - platform: snapi
+    snapi_base_api: <SNAPI API endpoint>
     username: <SNAPI user name>
     password: <SNAPI user password>
     refresh_frequency: <Minutes between refreshes>
@@ -57,6 +53,7 @@ Example file:
 ```yaml
 sensor:
   - platform: snapi
+    snapi_base_api: https://snapi_api_url.com.au
     username: john
     password: password123
     refresh_frequency: 10 #The integration will refresh the reading every 10 minutes

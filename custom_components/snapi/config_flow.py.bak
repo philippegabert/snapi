@@ -10,14 +10,12 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
+from .const import DOMAIN, SNAPI_BASE_API
 
-from .const import DOMAIN
 import requests
 from urllib.parse import urlencode
 
 _LOGGER = logging.getLogger(__name__)
-
-SNAPI_BASE_API = "https://api.snapi.com.au"
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {

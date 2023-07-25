@@ -3,9 +3,8 @@ from urllib.parse import urlencode
 import logging
 import aiohttp
 from .exceptions import ApiAuthError, ApiError
-from .const import SNAPI_BASE_API
-from PIL import Image
 import io
+from PIL import Image
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class SnapiAPI:
     async def get_token(
         self,
     ):
-        base_url = SNAPI_BASE_API + "/gateway/oauth/oauth/token"
+        base_url = self.snapi_config["snapi_base_api"] + "/gateway/oauth/oauth/token"
         _LOGGER.debug(f"Getting SnapiAPI token using URL {0}", base_url)
         params = {
             "username": self.snapi_config["username"],
@@ -50,7 +49,7 @@ class SnapiAPI:
 
     async def fetch_data(self):
         access_token = await self.get_token()
-        base_url = SNAPI_BASE_API + "/gateway/data/v1/dataAndPic"
+        base_url = self.snapi_config["snapi_base_api"] + "/gateway/data/v1/dataAndPic"
         _LOGGER.debug(f"Fetching devices data using URL {base_url}.")
         devices_readings = {}
 
@@ -91,7 +90,7 @@ class SnapiAPI:
                         "type": device["type"],
                         "friendly_name": device["friendly_name"],
                         "value": value_reading,
-                        "img_link": SNAPI_BASE_API + data_reading["path"],
+                        "img_link": self.snapi_config["snapi_base_api"] + data_reading["path"],
                         "current_ts": datetime.now().strftime("%H:%M:%S"),
                     }
                     if (
@@ -120,7 +119,7 @@ class SnapiAPI:
 
     async def get_image_data(self, img_link: str, angle: int):
         """To be implemented"""
-        img_url = SNAPI_BASE_API + img_link
+        img_url = self.snapi_config["snapi_base_api"] + img_link
         _LOGGER.info(f"Getting meter image from URL {img_url}")
         async with aiohttp.ClientSession() as session, session.get(img_url) as response:
             if response.status == 200:

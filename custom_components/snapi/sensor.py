@@ -26,7 +26,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers.entity import generate_entity_id
 
 
-from .const import DOMAIN, SNAPI_BASE_API
+from .const import DOMAIN
 from .exceptions import ApiAuthError, ApiError
 from .snapi_api import SnapiAPI
 
