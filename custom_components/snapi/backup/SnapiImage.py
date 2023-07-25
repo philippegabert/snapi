@@ -10,8 +10,8 @@ class SnapiImage(ImageEntity):
         self._attr_unique_id: str = "image.snapi_" + "xxx"
         self._attr_content_type: str = "image/jpeg"
         self._attr_icon = "mdi:camera"
-        self._attr_unique_id = "image.snapi_864323052188720"  # + str(self.idx)
-        self._attr_entity_id = "image.snapi_864323052188720"  # + str(self.idx)
+        self._attr_unique_id = "image.snapi_12345678090"  # + str(self.idx)
+        self._attr_entity_id = "image.snapi_12345678090"  # + str(self.idx)
         self._image_bytes = image_bytes
 
     @property
