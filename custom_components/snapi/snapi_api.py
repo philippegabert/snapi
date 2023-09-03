@@ -117,7 +117,7 @@ class SnapiAPI:
                     devices_readings[
                         str(device["device_name"]) + "_battery"
                     ] = battery_reading
-                if response.status == 401:
+                elif response.status == 401:
                     if not retried:
                         # Retry the API call...
                         return await self.fetch_data(retried=True) 
