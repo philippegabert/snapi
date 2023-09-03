@@ -81,7 +81,7 @@ class SnapiCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Refreshing SNAPI entities")
         try:
             async with async_timeout.timeout(60):
-                return await self.snapiAPI.fetch_data()
+                return await self.snapiAPI.fetch_data(retried=False)
         except ApiAuthError as err:
             raise ConfigEntryAuthFailed from err
         except ApiError as err:
@@ -161,6 +161,9 @@ class SnapiEntity(CoordinatorEntity, SensorEntity):
         if "img_link" in self.coordinator.data[self.idx]:
             self._attr_extra_state_attributes = {
                 "image_link": self.coordinator.data[self.idx]["img_link"]
+            }
+        self._attr_extra_state_attributes = {
+                "last_read_value": self.coordinator.data[self.idx]["last_read_value"]
             }
         # print("New value = " + str(self._attr_native_value))
         self.async_write_ha_state()

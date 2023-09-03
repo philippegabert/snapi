@@ -47,7 +47,7 @@ class SnapiAPI:
                         logger=_LOGGER,
                     )
 
-    async def fetch_data(self):
+    async def fetch_data(self,retried:bool):
         access_token = await self.get_token()
         base_url = self.snapi_config["snapi_base_api"] + "/gateway/data/v1/dataAndPic"
         _LOGGER.debug(f"Fetching devices data using URL {base_url}.")
@@ -82,8 +82,14 @@ class SnapiAPI:
 
                     data_reading = data["data"]["list"][0]
                     value_reading = 0
+                    last_read_date = None
                     if data_reading["data"]["number"] is not None:
                         value_reading = float(data_reading["data"]["number"])
+                    if data_reading["createTime"] is not None:
+                        #Parse the string with format 2023-09-03 07:16:43 into a date:
+                        last_read_date = datetime.strptime(data_reading["createTime"], "%Y-%m-%d %H:%M:%S")
+                        # Fix for Sydney?? Adding 2hours as the date from the UI is not correct, even with the right TZ.
+                        last_read_date = last_read_date + timedelta(hours=2)
 
                     # Value reading
                     device_reading = {
@@ -91,6 +97,7 @@ class SnapiAPI:
                         "friendly_name": device["friendly_name"],
                         "value": value_reading,
                         "img_link": self.snapi_config["snapi_base_api"] + data_reading["path"],
+                        "last_read_value": last_read_date,
                         "current_ts": datetime.now().strftime("%H:%M:%S"),
                     }
                     if (
@@ -110,6 +117,10 @@ class SnapiAPI:
                     devices_readings[
                         str(device["device_name"]) + "_battery"
                     ] = battery_reading
+                if response.status == 401:
+                    if not retried:
+                        # Retry the API call...
+                        return await self.fetch_data(retried=True) 
                 else:
                     raise ApiError(
                         msg=f"Error {response.status} while retrieving data!",
