@@ -113,6 +113,7 @@ class SnapiAPI:
                         "type": "battery",
                         "friendly_name": device["friendly_name"] + " (Battery)",
                         "value": data_reading["data"]["electricity"],
+                        "last_read_value": last_read_date
                     }
                     devices_readings[
                         str(device["device_name"]) + "_battery"

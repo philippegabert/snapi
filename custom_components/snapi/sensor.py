@@ -162,7 +162,8 @@ class SnapiEntity(CoordinatorEntity, SensorEntity):
             self._attr_extra_state_attributes = {
                 "image_link": self.coordinator.data[self.idx]["img_link"]
             }
-        self._attr_extra_state_attributes = {
+        if "last_read_value" in self.coordinator.data[self.idx]:
+            self._attr_extra_state_attributes = {
                 "last_read_value": self.coordinator.data[self.idx]["last_read_value"]
             }
         # print("New value = " + str(self._attr_native_value))
