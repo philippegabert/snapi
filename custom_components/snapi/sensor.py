@@ -102,7 +102,7 @@ class SnapiEntity(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = "snapi.snapi_" + str(self.idx)
         
         _LOGGER.debug(
-            "Entity details: Name = {self._attr_name}, Unique ID = {self.unique_id}, Type = {meter_type}"
+            f"Entity details: Name = {self._attr_name}, Unique ID = {self.unique_id}, Type = {meter_type}"
         )
         if meter_type == "gas":
             self._attr_native_unit_of_measurement = UnitOfVolume.CUBIC_METERS
@@ -133,10 +133,22 @@ class SnapiEntity(CoordinatorEntity, SensorEntity):
     #     )
 
     def correct_outlier(self, old_value, new_value, outlier_threshold) -> float:
+        _LOGGER.debug(
+            f"Correcting outlier... Old value = {old_value}, New Value = {new_value}, Threshold = {outlier_threshold}"
+        )
         if old_value > new_value:
+            _LOGGER.debug(
+                f"Old value greater than New value. Returning old value ({old_value})"
+            )
             return old_value
         if (new_value - old_value) > outlier_threshold:
+            _LOGGER.debug(
+                f"Threshold exceeded. Returning ({old_value})"
+            )
             return old_value
+        _LOGGER.debug(
+                f"Returning new value ({new_value})"
+            )
         return new_value
 
     @callback
